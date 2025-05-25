@@ -1,363 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Towards Understanding and Quantifying Uncertainty for Text-to-Image Generation</title>
-	
+
 	<!-- Meta tags for social sharing -->
 	<meta property="og:image" content="./resources/teaser.png" />
-	<meta property="og:title" content="Towards Understanding and Quantifying Uncertainty for Text-to-Image Generation" />
-	<meta property="og:description" content="Uncertainty quantification in text-to-image (T2I) generative models is crucial for understanding model behavior and improving output reliability." />
-	
+	<meta property="og:title"
+		content="Towards Understanding and Quantifying Uncertainty for Text-to-Image Generation" />
+	<meta property="og:description"
+		content="Uncertainty quantification in text-to-image (T2I) generative models is crucial for understanding model behavior and improving output reliability." />
+
 	<!-- Fonts -->
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-	
+
 	<!-- Locomotive Scroll CSS -->
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/locomotive-scroll@4.1.4/dist/locomotive-scroll.css">
-	
-	<!-- Tailwind CSS -->
+
+		<!-- Tailwind CSS -->
 	<script src="https://cdn.tailwindcss.com"></script>
 	
-	<!-- Custom styles -->
-	<style>
-		:root {
-			--primary-color: #3b82f6;
-			--secondary-color: #e2e8f0;
-			--accent-color: #06b6d4;
-			--text-primary: #1e293b;
-			--text-secondary: #475569;
-			--bg-light: #f8fafc;
-			--bg-lighter: #ffffff;
-		}
-
-		* {
-			margin: 0;
-			padding: 0;
-			box-sizing: border-box;
-		}
-
-		body {
-			font-family: 'Inter', sans-serif;
-			background: var(--bg-light);
-			color: var(--text-primary);
-			overflow-x: hidden;
-			line-height: 1.6;
-		}
-
-		.scroll-container {
-			background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f8fafc 100%);
-			min-height: 100vh;
-		}
-
-		/* Glassmorphism effects */
-		.glass {
-			background: rgba(255, 255, 255, 0.8);
-			backdrop-filter: blur(20px);
-			border-radius: 20px;
-			border: 1px solid rgba(255, 255, 255, 0.3);
-			box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
-		}
-
-		.glass-card {
-			background: rgba(255, 255, 255, 0.7);
-			backdrop-filter: blur(15px);
-			border-radius: 16px;
-			border: 1px solid rgba(255, 255, 255, 0.5);
-			transition: all 0.3s ease;
-			box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
-		}
-
-		.glass-card:hover {
-			background: rgba(255, 255, 255, 0.9);
-			transform: translateY(-5px);
-			box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-		}
-
-		/* Hero section */
-		.hero {
-			min-height: 100vh;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			position: relative;
-			overflow: hidden;
-		}
-
-		.hero::before {
-			content: '';
-			position: absolute;
-			top: 0;
-			left: 0;
-			right: 0;
-			bottom: 0;
-			background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
-			pointer-events: none;
-		}
-
-		.floating-particles {
-			position: absolute;
-			width: 100%;
-			height: 100%;
-			overflow: hidden;
-			pointer-events: none;
-		}
-
-		.particle {
-			position: absolute;
-			background: rgba(59, 130, 246, 0.2);
-			border-radius: 50%;
-			animation: float 6s ease-in-out infinite;
-		}
-
-		.particle:nth-child(1) { width: 4px; height: 4px; left: 10%; animation-delay: 0s; }
-		.particle:nth-child(2) { width: 6px; height: 6px; left: 20%; animation-delay: 1s; }
-		.particle:nth-child(3) { width: 3px; height: 3px; left: 30%; animation-delay: 2s; }
-		.particle:nth-child(4) { width: 5px; height: 5px; left: 40%; animation-delay: 3s; }
-		.particle:nth-child(5) { width: 4px; height: 4px; left: 50%; animation-delay: 1.5s; }
-		.particle:nth-child(6) { width: 6px; height: 6px; left: 60%; animation-delay: 2.5s; }
-		.particle:nth-child(7) { width: 3px; height: 3px; left: 70%; animation-delay: 0.5s; }
-		.particle:nth-child(8) { width: 5px; height: 5px; left: 80%; animation-delay: 3.5s; }
-		.particle:nth-child(9) { width: 4px; height: 4px; left: 90%; animation-delay: 4s; }
-
-		@keyframes float {
-			0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-			10% { opacity: 1; }
-			90% { opacity: 1; }
-			50% { transform: translateY(-100px) rotate(180deg); }
-		}
-
-		/* Gradient text */
-		.gradient-text {
-			background: linear-gradient(135deg, #1e40af, #0891b2, #7c3aed);
-			-webkit-background-clip: text;
-			-webkit-text-fill-color: transparent;
-			background-clip: text;
-		}
-
-		/* Fallback for browsers that don't support background-clip */
-		@supports not (-webkit-background-clip: text) {
-			.gradient-text {
-				color: #1e40af;
-			}
-		}
-
-		/* Button styles */
-		.btn-primary {
-			background: linear-gradient(135deg, #3b82f6, #06b6d4);
-			color: white;
-			padding: 12px 32px;
-			border-radius: 50px;
-			text-decoration: none;
-			font-weight: 600;
-			display: inline-block;
-			transition: all 0.3s ease;
-			border: none;
-			cursor: pointer;
-			position: relative;
-			overflow: hidden;
-		}
-
-		.btn-primary::before {
-			content: '';
-			position: absolute;
-			top: 0;
-			left: -100%;
-			width: 100%;
-			height: 100%;
-			background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-			transition: left 0.5s;
-		}
-
-		.btn-primary:hover::before {
-			left: 100%;
-		}
-
-		.btn-primary:hover {
-			transform: translateY(-2px);
-			box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
-		}
-
-		.btn-secondary {
-			background: rgba(255, 255, 255, 0.8);
-			color: var(--text-primary);
-			padding: 12px 32px;
-			border-radius: 50px;
-			text-decoration: none;
-			font-weight: 500;
-			display: inline-block;
-			transition: all 0.3s ease;
-			border: 1px solid rgba(0, 0, 0, 0.1);
-			backdrop-filter: blur(10px);
-			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-		}
-
-		.btn-secondary:hover {
-			background: rgba(255, 255, 255, 0.95);
-			transform: translateY(-2px);
-			box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-		}
-
-		/* Section styling */
-		.section {
-			padding: 100px 0;
-			position: relative;
-		}
-
-		.section-title {
-			font-size: 3rem;
-			font-weight: 700;
-			margin-bottom: 2rem;
-			text-align: center;
-		}
-
-		.section-subtitle {
-			font-size: 1.25rem;
-			color: var(--text-secondary);
-			text-align: center;
-			max-width: 600px;
-			margin: 0 auto 4rem;
-		}
-
-		/* Author cards */
-		.author-card {
-			text-align: center;
-			padding: 2rem;
-			transition: all 0.3s ease;
-		}
-
-		.author-card:hover {
-			transform: translateY(-10px);
-		}
-
-		.author-name {
-			font-size: 1.1rem;
-			font-weight: 600;
-			color: var(--text-primary);
-			margin-bottom: 0.5rem;
-		}
-
-		.author-affiliation {
-			font-size: 0.9rem;
-			color: var(--text-secondary);
-		}
-
-		/* Paper preview */
-		.paper-preview {
-			position: relative;
-			border-radius: 20px;
-			overflow: hidden;
-			transition: all 0.3s ease;
-		}
-
-		.paper-preview:hover {
-			transform: scale(1.02);
-			box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
-		}
-
-		/* Video container */
-		.video-container {
-			position: relative;
-			border-radius: 20px;
-			overflow: hidden;
-			box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-		}
-
-		/* Method diagram container */
-		.method-diagram {
-			border-radius: 20px;
-			overflow: hidden;
-			box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-			transition: all 0.3s ease;
-		}
-
-		.method-diagram:hover {
-			transform: scale(1.02);
-		}
-
-		/* Custom scrollbar */
-		::-webkit-scrollbar {
-			width: 8px;
-		}
-
-		::-webkit-scrollbar-track {
-			background: var(--bg-lighter);
-		}
-
-		::-webkit-scrollbar-thumb {
-			background: linear-gradient(135deg, #3b82f6, #06b6d4);
-			border-radius: 4px;
-		}
-
-		::-webkit-scrollbar-thumb:hover {
-			background: linear-gradient(135deg, #2563eb, #0891b2);
-		}
-
-		/* Responsive design */
-		@media (max-width: 768px) {
-			.section-title {
-				font-size: 2rem;
-			}
-			
-			.hero h1 {
-				font-size: 2.5rem !important;
-			}
-			
-			.btn-primary, .btn-secondary {
-				padding: 10px 24px;
-				font-size: 0.9rem;
-			}
-		}
-
-		/* Animation classes for GSAP */
-		.fade-in {
-			opacity: 1;
-			transform: translateY(0px);
-		}
-
-		.fade-in-left {
-			opacity: 1;
-			transform: translateX(0px);
-		}
-
-		.fade-in-right {
-			opacity: 1;
-			transform: translateX(0px);
-		}
-
-		.scale-in {
-			opacity: 1;
-			transform: scale(1);
-		}
-
-		/* These will be set by GSAP on load */
-		.js-loaded .fade-in {
-			opacity: 0;
-			transform: translateY(50px);
-		}
-
-		.js-loaded .fade-in-left {
-			opacity: 0;
-			transform: translateX(-50px);
-		}
-
-		.js-loaded .fade-in-right {
-			opacity: 0;
-			transform: translateX(50px);
-		}
-
-		.js-loaded .scale-in {
-			opacity: 0;
-			transform: scale(0.8);
-		}
-	</style>
+		<!-- Custom styles -->
+	<link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
 	<div class="scroll-container" data-scroll-container>
-		
+
 		<!-- Hero Section -->
 		<section class="hero" data-scroll-section>
 			<div class="floating-particles">
@@ -371,54 +44,61 @@
 				<div class="particle"></div>
 				<div class="particle"></div>
 			</div>
-			
+
 			<div class="container mx-auto px-6 z-10 relative">
 				<div class="max-w-7xl mx-auto">
 					<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 						<!-- Left Column - Content -->
 						<div class="text-left">
-							<h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 gradient-text fade-in-left" data-scroll data-scroll-speed="2">
+							<h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 gradient-text fade-in-left"
+								data-scroll data-scroll-speed="2">
 								Towards Understanding and Quantifying Uncertainty for Text-to-Image Generation
 							</h1>
-							
-							<p class="text-lg md:text-xl text-gray-600 mb-8 leading-relaxed fade-in-left" data-scroll data-scroll-speed="1" data-scroll-delay="0.2">
-								Uncertainty quantification in text-to-image (T2I) generative models is crucial for understanding model behavior and improving output reliability.
+
+							<p class="text-lg md:text-xl text-gray-600 mb-8 leading-relaxed fade-in-left" data-scroll
+								data-scroll-speed="1" data-scroll-delay="0.2">
+								Uncertainty quantification in text-to-image (T2I) generative models is crucial for
+								understanding model behavior and improving output reliability.
 							</p>
-							
-							<div class="flex flex-wrap gap-4 mb-8 fade-in-left" data-scroll data-scroll-speed="0.5" data-scroll-delay="0.4">
-								<a href="#" class="btn-primary">
+
+							<div class="flex flex-wrap gap-4 mb-8 fade-in-left" data-scroll data-scroll-speed="0.5"
+								data-scroll-delay="0.4">
+								<a href="https://arxiv.org/abs/2412.03178" class="btn-primary" target="_blank">
 									📄 Read Paper
 								</a>
-								<a href="#" class="btn-secondary">
+								<a href="https://github.com/ENSTA-U2IS-AI/Uncertainty_diffusion" class="btn-secondary" target="_blank">
 									📦 View Code
 								</a>
-								<a href="#" class="btn-secondary">
+								<a href="#" class="btn-secondary" target="_blank">
 									🎥 Watch Talk
 								</a>
 							</div>
-							
-							<div class="text-sm text-gray-500 fade-in-left" data-scroll data-scroll-speed="0.3" data-scroll-delay="0.6">
+
+							<div class="text-sm text-gray-500 fade-in-left" data-scroll data-scroll-speed="0.3"
+								data-scroll-delay="0.6">
 								<p class="mb-2">
-									<strong>Authors:</strong> Gianni Franchi, Nacim Belkhir, Dat Trong NGUYEN, Guoxuan Xia, Andrea Pilzer
+									<strong>Authors:</strong> Gianni Franchi, Nacim Belkhir, Dat Trong NGUYEN, Guoxuan
+									Xia, Andrea Pilzer
 								</p>
 								<p>
-									<strong>Conference:</strong> CVPR 2024 | 
-									<a href="#" class="text-blue-600 hover:text-blue-500 underline">ArXiv</a> | 
-									<a href="#" class="text-blue-600 hover:text-blue-500 underline">BibTeX</a>
+									<strong>Conference:</strong> CVPR 2025 |
+									<a href="https://arxiv.org/abs/2412.03178" class="text-blue-600 hover:text-blue-500 underline" target="_blank">ArXiv</a> |
+									<a href="#" class="text-blue-600 hover:text-blue-500 underline" onclick="openBibtexModal(); return false;">BibTeX</a>
 								</p>
 							</div>
 						</div>
-						
+
 						<!-- Right Column - Image -->
 						<div class="fade-in-right" data-scroll data-scroll-speed="0.8" data-scroll-delay="0.3">
-							<div class="glass-card p-6">
-								<img src="./resources/teaser.png" alt="Research Overview" class="w-full rounded-lg shadow-2xl">
+							<div class="glass-card p-1">
+								<img src="./resources/teaser.png" alt="Research Overview"
+									class="w-full rounded-lg shadow-2xl">
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-			
+
 			<div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
 				<div class="w-6 h-10 border-2 border-gray-400/50 rounded-full flex justify-center">
 					<div class="w-1 h-3 bg-gray-600/70 rounded-full mt-2 animate-pulse"></div>
@@ -430,31 +110,35 @@
 		<section class="section" data-scroll-section>
 			<div class="container mx-auto px-6">
 				<h2 class="section-title gradient-text fade-in-left">Authors</h2>
-				
+
 				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 max-w-6xl mx-auto">
 					<div class="author-card glass-card fade-in scale-in" data-scroll data-scroll-speed="0.5">
-						<div class="author-name">Gianni Franchi</div>
-						<div class="author-affiliation">Institution</div>
+						<div class="author-name"><a href="https://www.linkedin.com/in/gianni-franchi-94435754/" target="_blank">Gianni Franchi</a></div>
+						<div class="author-affiliation">ENSTA Paris</div>
 					</div>
-					
-					<div class="author-card glass-card fade-in scale-in" data-scroll data-scroll-speed="0.5" data-scroll-delay="0.1">
-						<div class="author-name">Nacim Belkhir</div>
-						<div class="author-affiliation">Institution</div>
+
+					<div class="author-card glass-card fade-in scale-in" data-scroll data-scroll-speed="0.5"
+						data-scroll-delay="0.1">
+						<div class="author-name"><a href="https://www.linkedin.com/in/belkhirnacim/" target="_blank">Nacim Belkhir</a></div>
+						<div class="author-affiliation">mirai</div>
 					</div>
-					
-					<div class="author-card glass-card fade-in scale-in" data-scroll data-scroll-speed="0.5" data-scroll-delay="0.2">
+
+					<div class="author-card glass-card fade-in scale-in" data-scroll data-scroll-speed="0.5"
+						data-scroll-delay="0.2">
 						<div class="author-name">Dat Trong NGUYEN</div>
-						<div class="author-affiliation">Institution</div>
+						<div class="author-affiliation">ENSTA Paris</div>
 					</div>
-					
-					<div class="author-card glass-card fade-in scale-in" data-scroll data-scroll-speed="0.5" data-scroll-delay="0.3">
-						<div class="author-name">Guoxuan Xia</div>
-						<div class="author-affiliation">Institution</div>
+
+					<div class="author-card glass-card fade-in scale-in" data-scroll data-scroll-speed="0.5"
+						data-scroll-delay="0.3">
+						<div class="author-name"><a href="https://www.linkedin.com/in/guoxuan-xia-716062173/" target="_blank">Guoxuan Xia</a></div>
+						<div class="author-affiliation">Imperial College London</div>
 					</div>
-					
-					<div class="author-card glass-card fade-in scale-in" data-scroll data-scroll-speed="0.5" data-scroll-delay="0.4">
-						<div class="author-name">Andrea Pilzer</div>
-						<div class="author-affiliation">Institution</div>
+
+					<div class="author-card glass-card fade-in scale-in" data-scroll data-scroll-speed="0.5"
+						data-scroll-delay="0.4">
+						<div class="author-name"><a href="https://www.linkedin.com/in/andrea-pilzer-691648196/" target="_blank">Andrea Pilzer</a></div>
+						<div class="author-affiliation">NVIDIA</div>
 					</div>
 				</div>
 			</div>
@@ -465,14 +149,29 @@
 			<div class="container mx-auto px-6">
 				<div class="max-w-4xl mx-auto">
 					<h2 class="section-title gradient-text fade-in-right">Abstract</h2>
-					
+
 					<div class="glass-card p-12 fade-in" data-scroll data-scroll-speed="0.3">
 						<p class="text-lg leading-relaxed text-gray-700">
-							Uncertainty quantification in text-to-image (T2I) generative models is crucial for understanding model behavior and improving output reliability. In this paper, we are the first to quantify and evaluate the uncertainty of T2I models with respect to the prompt. Alongside adapting existing approaches designed to measure uncertainty in the image space, we also introduce Prompt-based UNCertainty Estimation for T2I models (PUNC), a novel method leveraging Large Vision-Language Models (LVLMs) to better address uncertainties arising from the semantics of the prompt and generated images.
+							     
+							Uncertainty quantification in text-to-image (T2I) generative models is crucial for
+							understanding model behavior and improving output reliability. In this paper, we are the
+							first to quantify and evaluate the uncertainty of T2I models with respect to the prompt.
+							Alongside adapting existing approaches designed to measure uncertainty in the image space,
+							we also introduce Prompt-based UNCertainty Estimation for T2I models (PUNC), a novel method
+							leveraging Large Vision-Language Models (LVLMs) to better address uncertainties arising from
+							the semantics of the prompt and generated images.
 						</p>
 						<br>
 						<p class="text-lg leading-relaxed text-gray-700">
-							PUNC utilizes a LVLM to caption a generated image, and then compares the caption with the original prompt in the more semantically meaningful text space. PUNC also enables the disentanglement of both aleatoric and epistemic uncertainties via precision and recall, which image-space approaches are unable to do. Extensive experiments demonstrate that PUNC outperforms state-of-the-art uncertainty estimation techniques across various settings.
+							PUNC utilizes a LVLM to caption a generated image, and then compares the caption with the
+							original prompt in the more semantically meaningful text space. PUNC also enables the
+							disentanglement of both aleatoric and epistemic uncertainties via precision and recall,
+							which image-space approaches are unable to do. Extensive experiments demonstrate that PUNC
+							outperforms state-of-the-art uncertainty estimation techniques across various settings.
+						</p>
+						<br>
+						<p class="text-lg leading-relaxed text-gray-700">
+							Uncertainty quantification in text-to-image generation models can be used on various applications including bias detection, copyright protection, and OOD detection. We also introduce a comprehensive dataset of text prompts and generation pairs to foster further research in uncertainty quantification for generative models. Our findings illustrate that PUNC not only achieves competitive performance but also enables novel applications in evaluating and improving the trustworthiness of text-to-image models.
 						</p>
 					</div>
 				</div>
@@ -482,18 +181,19 @@
 		<!-- Method Section -->
 		<section class="section" data-scroll-section>
 			<div class="container mx-auto px-6">
-				<div class="max-w-6xl mx-auto">
+				<div class="max-w-7xl mx-auto">
 					<h2 class="section-title gradient-text fade-in-left">Method</h2>
 					<p class="section-subtitle fade-in">
-						Our novel PUNC approach leverages Large Vision-Language Models for semantic uncertainty estimation
+						Our novel PUNC approach leverages Large Vision-Language Models for semantic uncertainty
+						estimation
 					</p>
-					
-					<div class="method-diagram glass-card p-8 fade-in scale-in" data-scroll data-scroll-speed="0.2">
-						<img src="./resources/method_diagram.png" alt="Method Diagram" class="w-full rounded-lg">
+
+					<div class="method-diagram glass-card p-4 fade-in scale-in" data-scroll data-scroll-speed="0.2">
+						<img src="./resources/method_diagram.png" alt="Method Diagram" class="w-full h-auto rounded-lg">
 					</div>
-					
+
 					<div class="mt-12 text-center fade-in" data-scroll data-scroll-speed="0.3" data-scroll-delay="0.2">
-						<a href="#" class="btn-primary">
+						<a href="https://github.com/ENSTA-U2IS-AI/Uncertainty_diffusion" class="btn-primary" target="_blank">
 							🔍 Explore Implementation
 						</a>
 					</div>
@@ -509,64 +209,17 @@
 					<p class="section-subtitle fade-in">
 						Watch our presentation explaining the key concepts and findings
 					</p>
-					
+
 					<div class="video-container glass-card p-4 fade-in scale-in" data-scroll data-scroll-speed="0.2">
-						<iframe 
-							width="100%" 
-							height="500" 
-							src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
-							frameborder="0" 
-							allow="autoplay; encrypted-media" 
-							allowfullscreen
-							class="rounded-lg">
+						<iframe width="100%" height="500" src="#"
+							frameborder="0" allow="autoplay; encrypted-media" allowfullscreen class="rounded-lg">
 						</iframe>
 					</div>
-					
+
 					<div class="mt-8 text-center fade-in" data-scroll data-scroll-speed="0.3" data-scroll-delay="0.2">
 						<a href="#" class="btn-secondary">
 							📋 Download Slides
 						</a>
-					</div>
-				</div>
-			</div>
-		</section>
-
-		<!-- Paper Section -->
-		<section class="section" data-scroll-section>
-			<div class="container mx-auto px-6">
-				<div class="max-w-5xl mx-auto">
-					<h2 class="section-title gradient-text fade-in-left">Paper & Resources</h2>
-					
-					<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-						<div class="paper-preview fade-in fade-in-left" data-scroll data-scroll-speed="0.3">
-							<a href="#">
-								<img src="./resources/paper.png" alt="Paper Preview" class="w-full rounded-xl shadow-2xl">
-							</a>
-						</div>
-						
-						<div class="fade-in fade-in-right" data-scroll data-scroll-speed="0.2">
-							<h3 class="text-2xl font-bold mb-6 text-gray-900">
-								Creative and Descriptive Paper Title
-							</h3>
-							<p class="text-gray-600 mb-8 leading-relaxed">
-								F. Author, S. Author, T. Author<br>
-								<strong>Creative and Descriptive Paper Title</strong><br>
-								In Conference, 20XX<br>
-								(hosted on <a href="#" class="text-blue-600 hover:text-blue-500">ArXiv</a>)
-							</p>
-							
-							<div class="flex flex-wrap gap-4">
-								<a href="#" class="btn-primary">
-									📄 Read Paper
-								</a>
-								<a href="#" class="btn-secondary">
-									📝 BibTeX
-								</a>
-								<a href="#" class="btn-secondary">
-									📊 Supplementary
-								</a>
-							</div>
-						</div>
 					</div>
 				</div>
 			</div>
@@ -580,16 +233,17 @@
 					<p class="section-subtitle fade-in">
 						Access our open-source implementation and reproduce our results
 					</p>
-					
+
 					<div class="glass-card p-12 fade-in scale-in" data-scroll data-scroll-speed="0.2">
 						<div class="flex justify-center mb-8">
 							<div class="text-6xl">💻</div>
 						</div>
 						<h3 class="text-2xl font-bold mb-4 text-gray-900">Open Source Repository</h3>
 						<p class="text-gray-600 mb-8">
-							Complete implementation of PUNC with training scripts, evaluation tools, and pretrained models.
+							Complete implementation of PUNC with training scripts, evaluation tools, and pretrained
+							models.
 						</p>
-						<a href="#" class="btn-primary">
+						<a href="https://github.com/ENSTA-U2IS-AI/Uncertainty_diffusion" class="btn-primary" target="_blank">
 							🚀 View on GitHub
 						</a>
 					</div>
@@ -598,171 +252,58 @@
 		</section>
 
 		<!-- Acknowledgements Section -->
-		<section class="section pb-20" data-scroll-section>
+		<section class="section pb-20" data-scroll-section style="position: relative; z-index: 10;">
 			<div class="container mx-auto px-6">
 				<div class="max-w-4xl mx-auto">
 					<h2 class="section-title gradient-text fade-in">Acknowledgements</h2>
-					
-					<div class="glass-card p-8 text-center fade-in" data-scroll data-scroll-speed="0.2">
-						<p class="text-gray-600 leading-relaxed">
-							This template was originally made by 
-							<a href="http://web.mit.edu/phillipi/" class="text-blue-600 hover:text-blue-500">Phillip Isola</a> 
-							and 
-							<a href="http://richzhang.github.io/" class="text-blue-600 hover:text-blue-500">Richard Zhang</a> 
-							for a 
-							<a href="http://richzhang.github.io/colorization/" class="text-blue-600 hover:text-blue-500">colorful</a> 
-							ECCV project; the code can be found 
-							<a href="https://github.com/richzhang/webpage-template" class="text-blue-600 hover:text-blue-500">here</a>.
-						</p>
-					</div>
+					<p>This work was performed using HPC resources from GENCI-IDRIS (Grant 2023-[AD011011970R3]), and EuroHPC Development access to LEONARDO, hosted by CINECA.</p>
 				</div>
 			</div>
 		</section>
+
+		<!-- Footer -->
+		<footer class="py-8 border-t border-gray-200/50" data-scroll-section>
+			<div class="container mx-auto px-6">
+				<div class="text-center">
+					<p class="text-gray-600">
+						Website designed and developed by 
+						<a href="https://www.linkedin.com/in/belkhirnacim/" target="_blank" class="text-blue-600 hover:text-blue-500 font-medium underline">
+							Nacim Belkhir
+						</a>
+					</p>
+				</div>
+			</div>
+		</footer>
+		
+	</div>
+
+	<!-- BibTeX Modal -->
+	<div id="bibtexModal" class="modal-overlay">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3 class="modal-title">📄 BibTeX Citation</h3>
+				<button class="modal-close" onclick="closeBibtexModal()">×</button>
+			</div>
+			<div class="bibtex-container">
+				<div class="bibtex-text" id="bibtexText">@inproceedings{franchi2024uncertainty,
+  title={Towards Understanding and Quantifying Uncertainty for Text-to-Image Generation},
+  author={Franchi, Gianni and Belkhir, Nacim and Nguyen, Dat Trong and Xia, Guoxuan and Pilzer, Andrea},
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  year={2025}
+}</div>
+				<button class="copy-button" onclick="copyBibtex()">
+					<span class="copy-icon">📋</span>
+					<span class="copy-text">Copy to Clipboard</span>
+				</button>
+			</div>
+		</div>
 	</div>
 
 	<!-- Scripts -->
 	<script src="https://cdn.jsdelivr.net/npm/locomotive-scroll@4.1.4/dist/locomotive-scroll.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-
-	<script>
-		// Add js-loaded class for animation fallbacks
-		document.documentElement.classList.add('js-loaded');
-
-		// Initialize Locomotive Scroll
-		const scroll = new LocomotiveScroll({
-			el: document.querySelector('[data-scroll-container]'),
-			smooth: true,
-			smoothMobile: true,
-			multiplier: 1,
-			class: 'is-reveal'
-		});
-
-		// Register ScrollTrigger with Locomotive Scroll
-		gsap.registerPlugin(ScrollTrigger);
-
-		scroll.on("scroll", (instance) => {
-			document.documentElement.setAttribute('data-scroll-y', instance.scroll.y);
-		});
-
-		scroll.on("scroll", ScrollTrigger.update);
-
-		ScrollTrigger.scrollerProxy("[data-scroll-container]", {
-			scrollTop(value) {
-				return arguments.length ? scroll.scrollTo(value, 0, 0) : scroll.scroll.instance.scroll.y;
-			},
-			getBoundingClientRect() {
-				return {top: 0, left: 0, width: window.innerWidth, height: window.innerHeight};
-			},
-			pinType: document.querySelector("[data-scroll-container]").style.transform ? "transform" : "fixed"
-		});
-
-		// GSAP Animations
-		gsap.set(".fade-in", {opacity: 0, y: 50});
-		gsap.set(".fade-in-left", {opacity: 0, x: -50});
-		gsap.set(".fade-in-right", {opacity: 0, x: 50});
-		gsap.set(".scale-in", {opacity: 0, scale: 0.8});
-
-		// Animate elements on scroll
-		gsap.utils.toArray(".fade-in").forEach((element) => {
-			gsap.to(element, {
-				opacity: 1,
-				y: 0,
-				duration: 1,
-				ease: "power2.out",
-				scrollTrigger: {
-					trigger: element,
-					scroller: "[data-scroll-container]",
-					start: "top 80%",
-					end: "bottom 20%",
-					toggleActions: "play none none reverse"
-				}
-			});
-		});
-
-		gsap.utils.toArray(".fade-in-left").forEach((element) => {
-			gsap.to(element, {
-				opacity: 1,
-				x: 0,
-				duration: 1,
-				ease: "power2.out",
-				scrollTrigger: {
-					trigger: element,
-					scroller: "[data-scroll-container]",
-					start: "top 80%",
-					end: "bottom 20%",
-					toggleActions: "play none none reverse"
-				}
-			});
-		});
-
-		gsap.utils.toArray(".fade-in-right").forEach((element) => {
-			gsap.to(element, {
-				opacity: 1,
-				x: 0,
-				duration: 1,
-				ease: "power2.out",
-				scrollTrigger: {
-					trigger: element,
-					scroller: "[data-scroll-container]",
-					start: "top 80%",
-					end: "bottom 20%",
-					toggleActions: "play none none reverse"
-				}
-			});
-		});
-
-		gsap.utils.toArray(".scale-in").forEach((element) => {
-			gsap.to(element, {
-				opacity: 1,
-				scale: 1,
-				duration: 1,
-				ease: "back.out(1.7)",
-				scrollTrigger: {
-					trigger: element,
-					scroller: "[data-scroll-container]",
-					start: "top 80%",
-					end: "bottom 20%",
-					toggleActions: "play none none reverse"
-				}
-			});
-		});
-
-		// Hero title animation
-		gsap.fromTo(".hero h1", 
-			{opacity: 0, y: 100, scale: 0.8},
-			{opacity: 1, y: 0, scale: 1, duration: 1.5, ease: "power3.out", delay: 0.5}
-		);
-
-		// Hero subtitle animation
-		gsap.fromTo(".hero p", 
-			{opacity: 0, y: 50},
-			{opacity: 1, y: 0, duration: 1, ease: "power2.out", delay: 1}
-		);
-
-		// Hero buttons animation
-		gsap.fromTo(".hero .btn-primary, .hero .btn-secondary", 
-			{opacity: 0, y: 30},
-			{opacity: 1, y: 0, duration: 0.8, ease: "power2.out", delay: 1.3, stagger: 0.1}
-		);
-
-		// Hero image animation
-		gsap.fromTo(".hero .glass-card", 
-			{opacity: 0, y: 100, rotationX: 15},
-			{opacity: 1, y: 0, rotationX: 0, duration: 1.2, ease: "power2.out", delay: 1.6}
-		);
-
-		// Floating animation for hero background elements
-		gsap.to(".floating-particles", {
-			rotation: 360,
-			duration: 100,
-			ease: "none",
-			repeat: -1
-		});
-
-		// Update ScrollTrigger
-		ScrollTrigger.addEventListener("refresh", () => scroll.update());
-		ScrollTrigger.refresh();
-	</script>
+	<script src="script.js"></script>
 </body>
+
 </html>
