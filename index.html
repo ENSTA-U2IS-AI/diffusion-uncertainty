@@ -33,18 +33,6 @@
 
 		<!-- Hero Section -->
 		<section class="hero" data-scroll-section>
-			<div class="floating-particles">
-				<div class="particle"></div>
-				<div class="particle"></div>
-				<div class="particle"></div>
-				<div class="particle"></div>
-				<div class="particle"></div>
-				<div class="particle"></div>
-				<div class="particle"></div>
-				<div class="particle"></div>
-				<div class="particle"></div>
-			</div>
-
 			<div class="container mx-auto px-6 z-10 relative">
 				<div class="max-w-7xl mx-auto">
 					<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -210,11 +198,11 @@
 						Watch our presentation explaining the key concepts and findings
 					</p>
 
-					<div class="video-container glass-card p-4 fade-in scale-in" data-scroll data-scroll-speed="0.2">
+					<!-- <div class="video-container glass-card p-4 fade-in scale-in" data-scroll data-scroll-speed="0.2">
 						<iframe width="100%" height="500" src="#"
 							frameborder="0" allow="autoplay; encrypted-media" allowfullscreen class="rounded-lg">
 						</iframe>
-					</div>
+					</div> -->
 
 					<div class="mt-8 text-center fade-in" data-scroll data-scroll-speed="0.3" data-scroll-delay="0.2">
 						<a href="#" class="btn-secondary">
@@ -252,7 +240,7 @@
 		</section>
 
 		<!-- Acknowledgements Section -->
-		<section class="section pb-20" data-scroll-section style="position: relative; z-index: 10;">
+		<section class="section pb-20" data-scroll-section>
 			<div class="container mx-auto px-6">
 				<div class="max-w-4xl mx-auto">
 					<h2 class="section-title gradient-text fade-in">Acknowledgements</h2>
@@ -295,6 +283,21 @@
 					<span class="copy-icon">📋</span>
 					<span class="copy-text">Copy to Clipboard</span>
 				</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Image Lightbox Modal -->
+	<div id="imageLightbox" class="lightbox-overlay">
+		<div class="lightbox-content">
+			<button class="lightbox-close" onclick="closeLightbox()">×</button>
+			<div class="lightbox-controls">
+				<button class="zoom-btn" onclick="zoomIn()">🔍+</button>
+				<button class="zoom-btn" onclick="zoomOut()">🔍-</button>
+				<button class="zoom-btn" onclick="resetZoom()">⚪</button>
+			</div>
+			<div class="lightbox-image-container">
+				<img id="lightboxImage" src="" alt="" class="lightbox-image">
 			</div>
 		</div>
 	</div>
